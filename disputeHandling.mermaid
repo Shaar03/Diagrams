@@ -1,0 +1,71 @@
+sequenceDiagram
+    actor Learner
+    actor Support
+    actor Tutor
+    participant Frontend
+    participant System
+    participant Database
+    participant RecordingService
+
+    activate Learner
+    activate Frontend
+    Learner->>Frontend: Raise dispute
+    Frontend->>+System: Send dispute request
+    activate System
+    System->>+Database: Flag session as disputed
+    Database-->>-System: Confirm dispute flag
+    System-->>Frontend: Dispute registered
+    Frontend-->>Learner: Display dispute confirmation
+    deactivate System
+    deactivate Frontend
+
+    activate Support
+    activate System
+
+    loop Dispute Resolution
+        Support->>+System: Review dispute
+        System->>+Database: Fetch dispute details
+        Database-->>-System: Return dispute info
+        System-->>Support: Display dispute information
+        System->>+RecordingService: Retrieve session recording
+        RecordingService-->>-System: Return session recording
+        System-->>Support: Provide recording for review
+
+        activate Database
+        System->>+Database: Fetch comments from session feedback
+        Database-->>-System: Return comments
+        deactivate Database
+        System-->>Support: Display comments for review
+    end
+
+    Support->>System: Resolve dispute
+    alt Resolved in favor of Tutor
+        System->>+Database: Add payment to Tutor's wallet
+        activate Database
+        Database-->>-System: Confirm payment added
+        deactivate Database
+        System->+Database: Update session status
+        activate Database
+        Database-->>-System: Confirm update
+        deactivate Database
+        activate Frontend
+        System-->>Frontend: Notify dispute resolution
+        Frontend-->>Learner: Display resolution (in favor of Tutor)
+        activate Tutor
+        Frontend->>Tutor: Notify payment added to wallet
+    else Resolved in favor of Learner
+        System->>+Database: Refund session fee to Learner's wallet
+        activate Database
+        Database-->>-System: Confirm refund
+        deactivate Database
+        System->Database: Update session status
+        Database-->>System: Confirm update
+        System-->>Frontend: Notify dispute resolution
+        Frontend-->>Learner: Display resolution and refund
+        Frontend->>Tutor: Notify dispute outcome
+    end
+    deactivate System
+    deactivate Frontend
+    deactivate Support
+    deactivate Learner
+    deactivate Tutor
