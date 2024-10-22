@@ -1,0 +1,48 @@
+sequenceDiagram
+    actor Learner
+    participant Frontend
+    participant System
+    participant PaymentGateway
+    participant Database
+
+    Learner->>Frontend: Click "Add Funds"
+    activate Frontend
+    Frontend-->>Learner: Display amount input and payment methods
+    Learner->>Frontend: Enter amount and select payment method
+    Frontend->>System: Send add funds request
+    deactivate Frontend
+    
+    activate System
+    System->>PaymentGateway: Initiate payment process
+    activate PaymentGateway
+    PaymentGateway-->>Learner: Provide payment interface
+    deactivate PaymentGateway
+
+    Learner->>PaymentGateway: Complete payment
+    activate PaymentGateway
+    alt Successful payment
+        PaymentGateway-->>Learner: Notify successful payment
+        PaymentGateway->>System: Notify successful payment
+        deactivate PaymentGateway
+        
+        activate System
+        System->>Database: Update wallet balance
+        activate Database
+        Database-->>System: Confirm balance update
+        deactivate Database
+        
+        System-->>Frontend: Funds added successfully
+        activate Frontend
+        Frontend-->>Learner: Display updated wallet balance
+        deactivate Frontend
+    else Payment failure
+        activate PaymentGateway
+        PaymentGateway-->>Learner: Notify payment failure
+        PaymentGateway->>System: Notify payment failure
+        deactivate PaymentGateway
+        
+        deactivate System
+        activate Frontend
+        Frontend-->>Learner: Display error and retry options
+        deactivate Frontend
+    end
