@@ -9,13 +9,13 @@ sequenceDiagram
 
     activate Learner
     activate Frontend
-    Learner->>Frontend: Click on report session
+    Learner->>Frontend: Click on "Report Session"
     Frontend->>+System: sendDisputeRequest(sessionId)
     activate System
     System->>+Database: flagSessionAsDisputed(sessionId)
-    Database-->>-System: confirmDisputeFlag(sessionId)
-    System-->>Frontend: disputeRegistered()
-    Frontend-->>Learner: Dispute Confirmed
+    Database-->>-System: Dispute flagged
+    System-->>Frontend: Dispute registered
+    Frontend-->>Learner: Dispute confirmed
     deactivate System
     deactivate Frontend
 
@@ -23,46 +23,46 @@ sequenceDiagram
     activate System
 
     loop Dispute Resolution
-        Support->>+System: reviewDispute(disputeId)
-        System->>+Database: fetchDisputeDetails(disputeId)
-        Database-->>-System: Dispute Info
-        System-->>Support: Display Dispute Info
-        System->>+RecordingService: viewRecording(sessionId)
-        RecordingService-->>-System: viewRecording(sessionId)
-        System-->>Support: Display Recording
+        Support->>+System: Review dispute (disputeId)
+        System->>+Database: Fetch dispute details (disputeId)
+        Database-->>-System: Dispute information
+        System-->>Support: Display dispute information
+        System->>+RecordingService: Retrieve session recording (sessionId)
+        RecordingService-->>-System: Session recording
+        System-->>Support: Display session recording
 
         activate Database
-        System->>+Database: getFeedback(sessionId)
-        Database-->>-System: Feedback info
+        System->>+Database: Get feedback (sessionId)
+        Database-->>-System: Feedback information
         deactivate Database
-        System-->>Support: Display Feedback
+        System-->>Support: Display feedback
     end
 
-    Support->>System: resolveDispute(sessionId, decision)
+    Support->>System: Resolve dispute (sessionId, decision)
     alt Resolved in favor of Tutor
-        System->>+Database: addPaymentToTutorWallet(userId, amount)
+        System->>+Database: Add payment to tutor wallet (userId, amount)
         activate Database
-        Database-->>-System: Confirmation
+        Database-->>-System: Payment confirmed
         deactivate Database
-        System->>+Database: updateSessionStatus(sessionId, status)
+        System->>+Database: Update session status (sessionId, status)
         activate Database
-        Database-->>-System: Confirmation
+        Database-->>-System: Status updated
         deactivate Database
         activate Frontend
-        System-->>Frontend: Dispute Status
-        Frontend-->>Learner: Display Dispute Status
+        System-->>Frontend: Dispute resolution status
+        Frontend-->>Learner: Display dispute result
         activate Tutor
-        Frontend->>Tutor: Payment Added Confirmation
+        Frontend->>Tutor: Payment added to your wallet
     else Resolved in favor of Learner
-        System->>+Database: refundLearnerWallet(learnerId, amount)
+        System->>+Database: Refund learner wallet (learnerId, amount)
         activate Database
-        Database-->>-System: Confirmation
+        Database-->>-System: Refund confirmed
         deactivate Database
-        System->>+Database: updateSessionStatus(sessionId, "Resolved in favor of Learner")
-        Database-->>System: Confirmation
-        System-->>Frontend: Dispute Status
-        Frontend-->>Learner: Display Dispute Status
-        Frontend->>Tutor: Notify of Result
+        System->>+Database: Update session status (sessionId, "Resolved in favor of Learner")
+        Database-->>System: Status updated
+        System-->>Frontend: Dispute resolution status
+        Frontend-->>Learner: Display dispute result
+        Frontend->>Tutor: Notify dispute outcome
     end
     deactivate System
     deactivate Frontend
