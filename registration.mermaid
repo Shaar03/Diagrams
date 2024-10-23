@@ -1,0 +1,41 @@
+sequenceDiagram
+    actor User
+    participant RegistrationPage
+    participant System
+    participant EmailService
+    participant GoogleAuthAPI
+    participant Database
+
+    User->>RegistrationPage: Choose Role
+    
+    alt Standard Registration
+        User->>RegistrationPage: Fill in required fields
+        RegistrationPage->>System: sendRegistrationRequest(userData, role)
+        System->>Database: checkEmailExists(email)
+        Database-->>System: Email availability status
+        alt Email not registered
+            System->>Database: storeUserData(userId, role)
+            System->>EmailService: sendVerificationEmail(userId, email)
+            EmailService-->>User: Verification email delivered
+            System-->>RegistrationPage: Registration successful
+            RegistrationPage-->>User: Display success message
+        else Email already registered
+            System-->>RegistrationPage: Email already registered
+            RegistrationPage-->>User: Display error message
+        end
+    else Google Registration
+        User->>RegistrationPage: Click "Continue with Google"
+        RegistrationPage->>GoogleAuthAPI: requestGoogleAuthentication()
+        GoogleAuthAPI-->>RegistrationPage: Return user details (token)
+        RegistrationPage->>System: sendGoogleUserDetails(token, role)
+        System->>Database: checkGoogleUserExists(googleUserId)
+        Database-->>System: Google user exists status
+        alt Google account not registered
+            System->>Database: storeUserData(googleUserId, role)
+            System-->>RegistrationPage: Registration successful
+            RegistrationPage-->>User: Display success message
+        else Google account already registered
+            System-->>RegistrationPage: Google account already registered
+            RegistrationPage-->>User: Display error message
+        end
+    end
