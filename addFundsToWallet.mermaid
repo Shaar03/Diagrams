@@ -9,36 +9,36 @@ sequenceDiagram
     activate Frontend
     Frontend-->>Learner: Display amount input and payment methods
     Learner->>Frontend: Enter amount and select payment method
-    Frontend->>System: Send add funds request
+    Frontend->>System: sendAddFundsRequest(learnerId, amount, paymentMethod)
     deactivate Frontend
     
     activate System
-    System->>PaymentGateway: Initiate payment process
+    System->>PaymentGateway: initiatePaymentProcess(learnerId, amount, paymentMethod)
     activate PaymentGateway
-    PaymentGateway-->>Learner: Provide payment interface
+    PaymentGateway-->>Learner: Display payment interface
     deactivate PaymentGateway
 
     Learner->>PaymentGateway: Complete payment
     activate PaymentGateway
     alt Successful payment
         PaymentGateway-->>Learner: Notify successful payment
-        PaymentGateway->>System: Notify successful payment
+        PaymentGateway->>System: notifyPaymentSuccess(learnerId, amount)
         deactivate PaymentGateway
         
         activate System
-        System->>Database: Update wallet balance
+        System->>Database: updateWalletBalance(learnerId, amount)
         activate Database
         Database-->>System: Confirm balance update
         deactivate Database
         
-        System-->>Frontend: Funds added successfully
+        System-->>Frontend: fundsAddedSuccessfully()
         activate Frontend
         Frontend-->>Learner: Display updated wallet balance
         deactivate Frontend
     else Payment failure
         activate PaymentGateway
         PaymentGateway-->>Learner: Notify payment failure
-        PaymentGateway->>System: Notify payment failure
+        PaymentGateway->>System: notifyPaymentFailure()
         deactivate PaymentGateway
         
         deactivate System
