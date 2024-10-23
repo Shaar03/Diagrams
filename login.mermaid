@@ -8,34 +8,34 @@ sequenceDiagram
     activate User
     alt Standard Login
         User->>+Frontend: Enter credentials
-        Frontend->>+System: Send login request
-        System->>+Database: Verify credentials
+        Frontend->>+System: sendLoginRequest(credentials)
+        System->>+Database: verifyCredentials(userId, password)
         Database-->>-System: Credential verification result
         alt Credentials valid
-            System->>System: Generate JWT tokens
-            System-->>Frontend: Send tokens as HttpOnly cookies
-            Frontend-->>User: Grant access to system
+            System->>System: generateJWT(userId)
+            System-->>Frontend: Return tokens as HttpOnly cookies
+            Frontend-->>User: Grant access to the system
         else Credentials invalid
-            System-->>Frontend: Authentication failed
+            System-->>Frontend: Return authentication failed message
             Frontend-->>User: Display error message
         end
     else Google Login
         User->>Frontend: Click "Continue with Google"
-        Frontend->>+GoogleAuthAPI: Request authentication
+        Frontend->>+GoogleAuthAPI: requestGoogleAuthentication()
         activate GoogleAuthAPI
         GoogleAuthAPI-->>User: Open Google login portal
         deactivate GoogleAuthAPI
         User->>+GoogleAuthAPI: Select email and authenticate
-        GoogleAuthAPI-->>-Frontend: Return user data
-        Frontend->>+System: Send login request with Google token
-        System->>+Database: Verify user exists
+        GoogleAuthAPI-->>-Frontend: Return user data (token)
+        Frontend->>+System: sendGoogleLoginRequest(token)
+        System->>+Database: checkUserExists(googleUserId)
         Database-->>-System: User verification result
         alt User exists
-            System->>System: Generate JWT tokens
-            System-->>Frontend: Send tokens as HttpOnly cookies
-            Frontend-->>User: Grant access to system
+            System->>System: generateJWT(googleUserId)
+            System-->>Frontend: Return tokens as HttpOnly cookies
+            Frontend-->>User: Grant access to the system
         else User doesn't exist
-            System-->>Frontend: User not registered
+            System-->>Frontend: Return user not registered message
             Frontend-->>User: Prompt for registration
         end
     end
