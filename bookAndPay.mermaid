@@ -7,44 +7,44 @@ sequenceDiagram
     actor Tutor
 
     activate Learner
-    Learner->>+Frontend: Search for tutors
-    Frontend->>+System: Request available tutors
-    System->>+Database: Fetch available tutors
-    Database-->>-System: Return tutor list
-    System-->>-Frontend: Display tutor list
-    Frontend-->>Learner: Show tutor list
-    Learner->>Frontend: Select session and click "Book"
-    Frontend->>+System: Send booking request
-    System->>+Database: Check learner's wallet balance
-    Database-->>-System: Return wallet balance
+    Learner->>+Frontend: searchTutors()
+    Frontend->>+System: getAvailableTutors()
+    System->>+Database: fetchAvailableTutors()
+    Database-->>-System: returnTutorList()
+    System-->>-Frontend: displayTutors()
+    Frontend-->>Learner: showTutorList()
+    Learner->>Frontend: selectSessionAndBook(sessionId)
+    Frontend->>+System: sendBookingRequest(sessionId, learnerId)
+    System->>+Database: checkWalletBalance(learnerId)
+    Database-->>-System: returnWalletBalance()
     alt Sufficient funds
-        System->>+Database: Deduct session cost from wallet
-        System->>Database: Create booking record
-        Database-->>-System: Confirm booking
-        System-->>Frontend: Booking confirmed
-        Frontend-->>Learner: Display booking confirmation
-        System->>Tutor: Send booking notification
+        System->>+Database: deductFunds(learnerId, sessionCost)
+        System->>Database: createBookingRecord(sessionId, learnerId, tutorId)
+        Database-->>-System: confirmBooking()
+        System-->>Frontend: bookingConfirmed(sessionId)
+        Frontend-->>Learner: displayBookingConfirmation()
+        System->>Tutor: sendBookingNotification(tutorId, sessionId)
         activate Tutor
         deactivate Tutor
     else Insufficient funds
-        System-->>Frontend: Insufficient funds error
-        Frontend-->>Learner: Display error and prompt to add funds
+        System-->>Frontend: insufficientFundsError()
+        Frontend-->>Learner: displayErrorAndPromptForFunds()
         deactivate System
-        Learner->>Frontend: Choose to add funds
-        Frontend->>+System: Initiate add funds process
-        System->>+PaymentGateway: Request payment
+        Learner->>Frontend: chooseToAddFunds()
+        Frontend->>+System: initiateAddFundsProcess(learnerId)
+        System->>+PaymentGateway: requestPayment(learnerId, amount)
         alt Payment Successful
-            PaymentGateway-->>-System: Payment confirmation
-            System->>+Database: Update wallet balance
-            Database-->>-System: Confirm balance update
-            System-->>Frontend: Funds added successfully
-            Frontend-->>Learner: Display updated balance
+            PaymentGateway-->>-System: paymentConfirmation()
+            System->>+Database: updateWalletBalance(learnerId, amount)
+            Database-->>-System: confirmBalanceUpdate()
+            System-->>Frontend: fundsAddedSuccessfully()
+            Frontend-->>Learner: displayUpdatedBalance()
             Note over Frontend: Automatically retry booking
-            Frontend->>System: Send booking request
+            Frontend->>System: sendBookingRequest(sessionId, learnerId)
         else Payment Unsuccessful
-            PaymentGateway-->>System: Payment failure notification
-            System-->>Frontend: Payment failed
-            Frontend-->>Learner: Display payment failure
+            PaymentGateway-->>System: paymentFailureNotification()
+            System-->>Frontend: paymentFailed()
+            Frontend-->>Learner: displayPaymentFailure()
         end
     end
     deactivate Frontend
