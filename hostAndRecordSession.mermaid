@@ -2,7 +2,6 @@ sequenceDiagram
     actor Tutor
     actor Learner
     participant Frontend
-    participant MeetingService
     participant System
     participant CloudStorage
 
@@ -11,15 +10,15 @@ sequenceDiagram
     activate Frontend
     Tutor->>Frontend: Click "Join" button
     Learner->>Frontend: Click "Join" button
-    Frontend-->>Tutor: Display meeting URL
-    Frontend-->>Learner: Display meeting URL
+    Frontend-->>Tutor: Display session URL
+    Frontend-->>Learner: Display session URL
 
-    activate MeetingService
-    Tutor->>MeetingService: Join meeting via URL
-    Learner->>MeetingService: Join meeting via URL
-    MeetingService->>MeetingService: Automatically start recording
-    MeetingService-->>Frontend: Recording started, session ongoing
-    deactivate MeetingService
+    activate System
+    Tutor->>System: joinSession(sessionId)
+    Learner->>System: joinSession(sessionId)
+    System->>System: startSession(sessionId)
+    System-->>Frontend: Session started, recording ongoing
+    deactivate System
     deactivate Frontend
 
     loop Session Ongoing
@@ -28,15 +27,11 @@ sequenceDiagram
     end
     deactivate Learner
 
-    Tutor->>MeetingService: End session via meeting platform
+    Tutor->>System: endSession(sessionId)
     deactivate Tutor
-    activate MeetingService
-    MeetingService->>MeetingService: Stop recording
-    MeetingService-->>CloudStorage: Store recording in cloud
-    deactivate MeetingService
-
-    activate CloudStorage
     activate System
-    CloudStorage-->>System: Recording available for future use
+    System->>System: stopRecording(sessionId)
+    activate CloudStorage
+    System-->>CloudStorage: Store recording in cloud
     deactivate System
     deactivate CloudStorage
