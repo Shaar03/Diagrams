@@ -31,14 +31,14 @@ sequenceDiagram
         Database-->>System: Confirm balance update
         deactivate Database
         
-        System-->>Frontend: fundsAddedSuccessfully()
+        System-->>Frontend: Confirmation
         activate Frontend
         Frontend-->>Learner: Display updated wallet balance
         deactivate Frontend
     else Payment failure
         activate PaymentGateway
         PaymentGateway-->>Learner: Notify payment failure
-        PaymentGateway->>System: notifyPaymentFailure()
+        PaymentGateway->>System: Payment Failure Response
         deactivate PaymentGateway
         
         deactivate System
