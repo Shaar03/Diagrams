@@ -8,11 +8,11 @@ sequenceDiagram
     activate User
     alt Standard Login
         User->>+Frontend: Enter credentials
-        Frontend->>+System: sendLoginRequest(credentials)
+        Frontend->>+System: login(credentials)
         System->>+Database: verifyCredentials(userId, password)
         Database-->>-System: Credential verification result
         alt Credentials valid
-            System->>System: generateJWT(userId)
+            System->>System: createTokens(userDetails, expirationTime)
             System-->>Frontend: Return tokens as HttpOnly cookies
             Frontend-->>User: Grant access to the system
         else Credentials invalid
@@ -26,12 +26,12 @@ sequenceDiagram
         GoogleAuthAPI-->>User: Open Google login portal
         deactivate GoogleAuthAPI
         User->>+GoogleAuthAPI: Select email and authenticate
-        GoogleAuthAPI-->>-Frontend: Return user data (token)
-        Frontend->>+System: sendGoogleLoginRequest(token)
+        GoogleAuthAPI-->>-Frontend: Google Token
+        Frontend->>+System: loginWithGoogle(token)
         System->>+Database: checkUserExists(googleUserId)
         Database-->>-System: User verification result
         alt User exists
-            System->>System: generateJWT(googleUserId)
+            System->>System: createTokens(userDetails, expirationTime)
             System-->>Frontend: Return tokens as HttpOnly cookies
             Frontend-->>User: Grant access to the system
         else User doesn't exist
