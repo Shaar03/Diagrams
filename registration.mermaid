@@ -10,12 +10,12 @@ sequenceDiagram
     
     alt Standard Registration
         User->>RegistrationPage: Fill in required fields
-        RegistrationPage->>System: sendRegistrationRequest(userData, role)
+        RegistrationPage->>System: registerUser(userData)
         System->>Database: checkEmailExists(email)
         Database-->>System: Email availability status
         alt Email not registered
-            System->>Database: storeUserData(userId, role)
-            System->>EmailService: sendVerificationEmail(userId, email)
+            System->>Database: storeUserData(userData)
+            System->>EmailService: sendVerificationEmail(email)
             EmailService-->>User: Verification email delivered
             System-->>RegistrationPage: Registration successful
             RegistrationPage-->>User: Display success message
@@ -26,12 +26,12 @@ sequenceDiagram
     else Google Registration
         User->>RegistrationPage: Click "Continue with Google"
         RegistrationPage->>GoogleAuthAPI: requestGoogleAuthentication()
-        GoogleAuthAPI-->>RegistrationPage: Return user details (token)
-        RegistrationPage->>System: sendGoogleUserDetails(token, role)
+        GoogleAuthAPI-->>RegistrationPage: Google Token
+        RegistrationPage->>System: registerWithGoogle(token)
         System->>Database: checkGoogleUserExists(googleUserId)
         Database-->>System: Google user exists status
         alt Google account not registered
-            System->>Database: storeUserData(googleUserId, role)
+            System->>Database: storeUserData(userData)
             System-->>RegistrationPage: Registration successful
             RegistrationPage-->>User: Display success message
         else Google account already registered
