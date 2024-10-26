@@ -2,7 +2,7 @@ sequenceDiagram
     actor Learner
     actor Admin
     actor Tutor
-    participant Frontend
+    participant Frontends
     participant System
     participant Database
     participant RecordingService
@@ -10,7 +10,7 @@ sequenceDiagram
     activate Learner
     activate Frontend
     Learner->>Frontend: Click on "Report Session"
-    Frontend->>+System: initiateDispute(sessionId)
+    Frontend->>+System: rateTutor(sessionId)
     activate System
     System->>+Database: flagSessionAsDisputed(sessionId)
     Database-->>-System: disputeFlagged()
@@ -23,8 +23,8 @@ sequenceDiagram
     activate System
 
     loop Dispute Resolution
-        Admin->>+System: reviewDispute(disputeId)
-        System->>+Database: fetchDisputeDetails(disputeId)
+        Admin->>+System: handleDispute(sessionId)
+        System->>+Database: fetchDisputeDetails(sessionId)
         Database-->>-System: returnDisputeInfo()
         System-->>Admin: Display dispute information
         System->>+RecordingService: retrieveSessionRecording(sessionId)
@@ -36,7 +36,7 @@ sequenceDiagram
         System-->>Admin: Display session feedback
     end
 
-    Admin->>System: resolveDispute(sessionId, decision)
+    Admin->>System: issueRefund(sessionId)
     alt Resolved in favor of Tutor
         System->>+Database: addPaymentToTutorWallet(tutorId, amount)
         Database-->>-System: paymentConfirmed()
