@@ -8,13 +8,13 @@ sequenceDiagram
 
     activate Learner
     Learner->>+Frontend: Search for tutors
-    Frontend->>+System: getAvailableTutors()
+    Frontend->>+System: getAvailableSessions(SessionFilter?)
     System->>+Database: fetchAvailableTutors()
     Database-->>-System: Tutor list
     System-->>-Frontend: Available tutors
     Frontend-->>Learner: Show available tutors
     Learner->>Frontend: Select a session and book it
-    Frontend->>+System: sendBookingRequest(sessionId, learnerId)
+    Frontend->>+System: scheduleSession(sessionId)
     System->>+Database: checkWalletBalance(learnerId)
     Database-->>-System: Wallet balance
     alt Sufficient funds
@@ -31,7 +31,7 @@ sequenceDiagram
         Frontend-->>Learner: Display error and prompt to add funds
         deactivate System
         Learner->>Frontend: Choose to add funds
-        Frontend->>+System: initiateAddFundsProcess(learnerId)
+        Frontend->>+System: addFunds(amount)
         System->>+PaymentGateway: requestPayment(learnerId, amount)
         alt Payment Successful
             PaymentGateway-->>-System: Payment confirmed
@@ -40,7 +40,7 @@ sequenceDiagram
             System-->>Frontend: Funds added successfully
             Frontend-->>Learner: Display updated balance
             Note over Frontend: Automatically retry booking
-            Frontend->>System: sendBookingRequest(sessionId, learnerId)
+            Frontend->>System: scheduleSession(sessionId)
         else Payment Unsuccessful
             PaymentGateway-->>System: Payment failed
             System-->>Frontend: Payment failure
