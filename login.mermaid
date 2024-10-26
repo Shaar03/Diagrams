@@ -8,7 +8,7 @@ sequenceDiagram
     activate User
     alt Standard Login
         User->>+Frontend: Enter credentials
-        Frontend->>+System: login(credentials)
+        Frontend->>+System: login(loginRequest)
         System->>+Database: verifyCredentials(userId, password)
         Database-->>-System: Credential verification result
         alt Credentials valid
