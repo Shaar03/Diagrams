@@ -10,7 +10,7 @@ sequenceDiagram
     
     alt Standard Registration
         User->>RegistrationPage: Fill in required fields
-        RegistrationPage->>System: registerUser(userData)
+        RegistrationPage->>System: register(registerRequest)
         System->>Database: checkEmailExists(email)
         Database-->>System: Email availability status
         alt Email not registered
