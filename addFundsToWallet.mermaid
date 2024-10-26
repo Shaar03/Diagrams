@@ -9,11 +9,11 @@ sequenceDiagram
     activate Frontend
     Frontend-->>Learner: Display amount input and payment methods
     Learner->>Frontend: Enter amount and select payment method
-    Frontend->>System: sendAddFundsRequest(learnerId, amount, paymentMethod)
+    Frontend->>System: addFunds(amount)
     deactivate Frontend
     
     activate System
-    System->>PaymentGateway: initiatePaymentProcess(learnerId, amount, paymentMethod)
+    System->>PaymentGateway: initiatePaymentProcess(learnerId, amount)
     activate PaymentGateway
     PaymentGateway-->>Learner: Display payment interface
     deactivate PaymentGateway
