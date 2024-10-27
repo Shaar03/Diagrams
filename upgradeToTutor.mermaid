@@ -4,9 +4,10 @@ sequenceDiagram
     participant System
     participant Database
 
-    Learner->>Frontend: Navigate to "Upgrade To Tutor" form
-    Learner->>Frontend: Fill in tutor-specific fields
+    Learner->>Frontend: Click on "Upgrade To Tutor" button
+    activate Learner
     activate Frontend
+    Learner->>Frontend: Fill in tutor-specific fields
     Frontend->>System: upgradeToTutor(tutorDetails)
     deactivate Frontend
     activate System
@@ -30,5 +31,6 @@ sequenceDiagram
         deactivate System
         activate Frontend
         Frontend-->>Learner: Display info message
+        deactivate Learner
         deactivate Frontend
     end
