@@ -25,11 +25,9 @@ sequenceDiagram
         System-->>Frontend: Upgrade successful
         activate Frontend
         Frontend-->>Learner: Display success message
-        deactivate Frontend
     else Current role is Tutor
         System-->>Frontend: User already a Tutor
         deactivate System
-        activate Frontend
         Frontend-->>Learner: Display info message
         deactivate Learner
         deactivate Frontend
