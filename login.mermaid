@@ -9,6 +9,7 @@ sequenceDiagram
     alt Standard Login
         User->>+Frontend: Enter credentials
         Frontend->>+System: login(loginRequest)
+        activate System
         System->>+Database: verifyCredentials(userId, password)
         Database-->>-System: Credential verification result
         alt Credentials valid
@@ -17,6 +18,7 @@ sequenceDiagram
             Frontend-->>User: Grant access to the system
         else Credentials invalid
             System-->>Frontend: Return authentication failed message
+            deactivate System
             Frontend-->>User: Display error message
         end
     else Google Login
@@ -36,9 +38,9 @@ sequenceDiagram
             Frontend-->>User: Grant access to the system
         else User doesn't exist
             System-->>Frontend: Return user not registered message
+            deactivate System
             Frontend-->>User: Prompt for registration
         end
     end
-    deactivate System
     deactivate Frontend
     deactivate User
