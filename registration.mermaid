@@ -6,36 +6,63 @@ sequenceDiagram
     participant GoogleAuthAPI
     participant Database
 
+    activate User
     User->>RegistrationPage: Choose Role
+    activate RegistrationPage
     
     alt Standard Registration
         User->>RegistrationPage: Fill in required fields
         RegistrationPage->>System: register(registerRequest)
+        activate System
         System->>Database: checkEmailExists(email)
+        activate Database
         Database-->>System: Email availability status
+        deactivate Database
+        
         alt Email not registered
             System->>Database: storeUserData(userData)
+            activate Database
+            deactivate Database
+            
             System->>EmailService: sendVerificationEmail(email)
+            activate EmailService
             EmailService-->>User: Verification email delivered
+            deactivate EmailService
+            
             System-->>RegistrationPage: Registration successful
             RegistrationPage-->>User: Display success message
         else Email already registered
             System-->>RegistrationPage: Email already registered
+            deactivate System
             RegistrationPage-->>User: Display error message
         end
     else Google Registration
         User->>RegistrationPage: Click "Continue with Google"
         RegistrationPage->>GoogleAuthAPI: requestGoogleAuthentication()
+        activate GoogleAuthAPI
         GoogleAuthAPI-->>RegistrationPage: Google Token
+        deactivate GoogleAuthAPI
+        
         RegistrationPage->>System: registerWithGoogle(token)
+        activate System
         System->>Database: checkGoogleUserExists(googleUserId)
+        activate Database
         Database-->>System: Google user exists status
+        deactivate Database
+        
         alt Google account not registered
             System->>Database: storeUserData(userData)
+            activate Database
+            deactivate Database
+            
             System-->>RegistrationPage: Registration successful
             RegistrationPage-->>User: Display success message
         else Google account already registered
             System-->>RegistrationPage: Google account already registered
+            deactivate System
             RegistrationPage-->>User: Display error message
         end
     end
+    
+    deactivate RegistrationPage
+    deactivate User
