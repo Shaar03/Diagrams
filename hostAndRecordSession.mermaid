@@ -5,20 +5,21 @@ sequenceDiagram
     participant System
     participant CloudStorage
 
-    activate Tutor
-    activate Learner
-    activate Frontend
     Tutor->>Frontend: Click "Join" button
+    activate Frontend
+    activate Tutor
     Learner->>Frontend: Click "Join" button
+    activate Learner
     Frontend-->>Tutor: Display session URL
     Frontend-->>Learner: Display session URL
 
-    activate System
     Tutor->>System: joinSession(sessionId)
+    activate System
     Learner->>System: joinSession(sessionId)
+    activate System
     System->>System: startSession(sessionId)
-    System-->>Frontend: Session started, recording ongoing
     deactivate System
+    System-->>Frontend: Session started, recording ongoing
     deactivate Frontend
 
     loop Session Ongoing
@@ -31,6 +32,7 @@ sequenceDiagram
     deactivate Tutor
     activate System
     System->>System: stopRecording(sessionId)
+    deactivate System
     activate CloudStorage
     System-->>CloudStorage: Store recording in cloud
     deactivate System
