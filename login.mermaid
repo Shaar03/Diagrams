@@ -8,7 +8,7 @@ sequenceDiagram
     activate User
     alt Standard Login
         User->>+Frontend: Enter credentials
-        Frontend->>+System: login(loginRequest)
+        Frontend->>System: login(loginRequest)
         activate System
         System->>+Database: verifyCredentials(userId, password)
         Database-->>-System: Credential verification result
@@ -25,7 +25,7 @@ sequenceDiagram
         end
     else Google Login
         User->>Frontend: Click "Continue with Google"
-        Frontend->>+GoogleAuthAPI: requestGoogleAuthentication()
+        Frontend->>GoogleAuthAPI: requestGoogleAuthentication()
         activate GoogleAuthAPI
         GoogleAuthAPI-->>User: Open Google login portal
         deactivate GoogleAuthAPI
