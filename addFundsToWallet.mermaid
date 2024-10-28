@@ -2,40 +2,49 @@ sequenceDiagram
     actor Learner
     participant Frontend
     participant System
+    participant PaymentGateway
     participant Database
-    actor Tutor
 
+    Learner->>Frontend: Click "Add Funds"
     activate Learner
-    Learner->>+Frontend: Search for tutors
-    Frontend->>+System: getAvailableSessions(SessionFilter?)
-    System->>+Database: fetchAvailableTutors()
-    Database-->>-System: Tutor list
-    System-->>-Frontend: Available tutors
-    Frontend-->>Learner: Show available tutors
-    Learner->>Frontend: Select a session and book it
-    Frontend->>+System: scheduleSession(sessionId)
-    System->>+Database: checkWalletBalance(learnerId)
-    Database-->>-System: Wallet balance
-    alt Sufficient funds
-        System->>+Database: deductFunds(learnerId, sessionCost)
-        System->>Database: createBookingRecord(sessionId, learnerId, tutorId)
-        Database-->>-System: Booking confirmed
-        System-->>Frontend: Booking confirmed
-        Frontend-->>Learner: Display booking confirmation
-        System->>Tutor: Send booking notification
-        activate Tutor
-        deactivate Tutor
-    else Insufficient funds
-        System-->>Frontend: Insufficient funds error
-        Frontend-->>Learner: Display error and prompt to add funds
-        Learner->>Frontend: Choose to add funds
-
-        Note over Learner, Tutor: Refer to "Add Funds to Wallet" sequence
-
-        alt Payment Successful
-            Note over Learner, Tutor: Automatically retry booking
-        end
-    end
-    deactivate System
+    activate Frontend
+    Frontend-->>Learner: Display amount input and payment methods
+    Learner->>Frontend: Enter amount and select payment method
+    Frontend->>System: addFunds(amount)
+    activate System
     deactivate Frontend
-    deactivate Learner
+    
+    System->>PaymentGateway: initiatePaymentProcess(learnerId, amount)
+    activate PaymentGateway
+    PaymentGateway-->>Learner: Display payment interface
+
+    Learner->>PaymentGateway: Complete payment
+    alt Successful payment
+        PaymentGateway-->>Learner: Notify successful payment
+        PaymentGateway->>System: notifyPaymentSuccess(learnerId, amount)
+        deactivate PaymentGateway
+        
+        System->>Database: updateWalletBalance(learnerId, amount)
+        activate Database
+        Database-->>System: Confirm balance update
+        deactivate Database
+        
+        System-->>Frontend: Confirmation
+        activate Frontend
+        Frontend-->>Learner: Display updated wallet balance
+        deactivate Frontend
+    else Payment failure
+        par
+            PaymentGateway-->>Learner: Notify payment failure
+            activate PaymentGateway
+            PaymentGateway->>System: Payment Failure Response
+        end
+        deactivate PaymentGateway
+        
+        System-->>Frontend: Payment Failure 
+        deactivate System
+        activate Frontend
+        Frontend-->>Learner: Display error and retry options
+        deactivate Learner
+        deactivate Frontend
+    end
