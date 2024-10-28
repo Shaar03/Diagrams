@@ -2,28 +2,27 @@ sequenceDiagram
     actor Learner
     actor Admin
     actor Tutor
-    participant Frontends
+    participant Frontend
     participant System
     participant Database
     participant RecordingService
 
+    Learner->>Frontend: Click on "Report Session"
     activate Learner
     activate Frontend
-    Learner->>Frontend: Click on "Report Session"
-    Frontend->>+System: rateTutor(sessionId)
+    Frontend->>System: rateTutor(sessionId)
     activate System
     System->>+Database: flagSessionAsDisputed(sessionId)
     Database-->>-System: disputeFlagged()
     System-->>Frontend: disputeRegistered()
+    deactivate System
     Frontend-->>Learner: Dispute confirmed
     deactivate Frontend
-    deactivate System
-
-    activate Admin
-    activate System
 
     loop Dispute Resolution
-        Admin->>+System: handleDispute(sessionId)
+        Admin->>System: handleDispute(sessionId)
+        activate System
+        activate Admin
         System->>+Database: fetchDisputeDetails(sessionId)
         Database-->>-System: returnDisputeInfo()
         System-->>Admin: Display dispute information
@@ -44,23 +43,30 @@ sequenceDiagram
         Database-->>-System: statusUpdated()
         System-->>Frontend: disputeResolutionStatus()
         activate Frontend
-        Frontend-->>Learner: Display dispute result
-        activate Tutor
-        Frontend->>Tutor: Payment added to your wallet
-        deactivate Tutor
+
+        par
+            Frontend-->>Learner: Display dispute result
+            activate Tutor
+            Frontend->>Tutor: Payment added to your wallet
+            deactivate Tutor
+        end
+        deactivate Frontend
     else Resolved in favor of Learner
         System->>+Database: refundLearnerWallet(learnerId, amount)
         Database-->>-System: refundConfirmed()
-        System->>+Database: updateSessionStatus(sessionId, "Resolved in favor of Learner")
+        System->>Database: updateSessionStatus(sessionId, "Resolved in favor of Learner")
         Database-->>System: statusUpdated()
         System-->>Frontend: disputeResolutionStatus()
         activate Frontend
-        Frontend-->>Learner: Display dispute result
-        activate Tutor
-        Frontend->>Tutor: Notify dispute outcome
+
+        par
+            Frontend-->>Learner: Display dispute result
+            activate Tutor
+            Frontend->>Tutor: Notify dispute outcome
+            deactivate Tutor
+        end
     end
     deactivate System
     deactivate Frontend
     deactivate Admin
     deactivate Learner
-    deactivate Tutor
