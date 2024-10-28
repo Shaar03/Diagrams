@@ -23,12 +23,14 @@ sequenceDiagram
         Database-->>System: Role update confirmed
         deactivate Database
         System-->>Frontend: Upgrade successful
+        deactivate System
         activate Frontend
         Frontend-->>Learner: Display success message
     else Current role is Tutor
         System-->>Frontend: User already a Tutor
+        activate System
         deactivate System
         Frontend-->>Learner: Display info message
-        deactivate Learner
-        deactivate Frontend
     end
+    deactivate Learner
+    deactivate Frontend
