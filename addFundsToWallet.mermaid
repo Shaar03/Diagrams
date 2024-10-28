@@ -6,26 +6,24 @@ sequenceDiagram
     participant Database
 
     Learner->>Frontend: Click "Add Funds"
+    activate Learner
     activate Frontend
     Frontend-->>Learner: Display amount input and payment methods
     Learner->>Frontend: Enter amount and select payment method
     Frontend->>System: addFunds(amount)
+    activate System
     deactivate Frontend
     
-    activate System
     System->>PaymentGateway: initiatePaymentProcess(learnerId, amount)
     activate PaymentGateway
     PaymentGateway-->>Learner: Display payment interface
-    deactivate PaymentGateway
 
     Learner->>PaymentGateway: Complete payment
-    activate PaymentGateway
     alt Successful payment
         PaymentGateway-->>Learner: Notify successful payment
         PaymentGateway->>System: notifyPaymentSuccess(learnerId, amount)
         deactivate PaymentGateway
         
-        activate System
         System->>Database: updateWalletBalance(learnerId, amount)
         activate Database
         Database-->>System: Confirm balance update
@@ -36,13 +34,16 @@ sequenceDiagram
         Frontend-->>Learner: Display updated wallet balance
         deactivate Frontend
     else Payment failure
-        activate PaymentGateway
-        PaymentGateway-->>Learner: Notify payment failure
-        PaymentGateway->>System: Payment Failure Response
+        par
+            PaymentGateway-->>Learner: Notify payment failure
+            activate PaymentGateway
+            PaymentGateway->>System: Payment Failure Response
+        end
         deactivate PaymentGateway
         
-        deactivate System
+        System-->>Frontend: Payment Failure 
         activate Frontend
         Frontend-->>Learner: Display error and retry options
+        deactivate Learner
         deactivate Frontend
     end
