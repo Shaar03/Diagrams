@@ -42,6 +42,7 @@ sequenceDiagram
         deactivate PaymentGateway
         
         System-->>Frontend: Payment Failure 
+        deactivate System
         activate Frontend
         Frontend-->>Learner: Display error and retry options
         deactivate Learner
