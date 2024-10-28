@@ -3,7 +3,6 @@ sequenceDiagram
     participant Frontend
     participant System
     participant Database
-    participant PaymentGateway
     actor Tutor
 
     activate Learner
@@ -29,23 +28,14 @@ sequenceDiagram
     else Insufficient funds
         System-->>Frontend: Insufficient funds error
         Frontend-->>Learner: Display error and prompt to add funds
-        deactivate System
         Learner->>Frontend: Choose to add funds
-        Frontend->>+System: addFunds(amount)
-        System->>+PaymentGateway: requestPayment(learnerId, amount)
+
+        Note over Learner, Tutor: Refer to "Add Funds to Wallet" sequence
+
         alt Payment Successful
-            PaymentGateway-->>-System: Payment confirmed
-            System->>+Database: updateWalletBalance(learnerId, amount)
-            Database-->>-System: Balance updated
-            System-->>Frontend: Funds added successfully
-            Frontend-->>Learner: Display updated balance
-            Note over Frontend: Automatically retry booking
-            Frontend->>System: scheduleSession(sessionId)
-        else Payment Unsuccessful
-            PaymentGateway-->>System: Payment failed
-            System-->>Frontend: Payment failure
-            Frontend-->>Learner: Display payment failure
+            Note over Learner, Tutor: Automatically retry booking
         end
     end
+    deactivate System
     deactivate Frontend
     deactivate Learner
