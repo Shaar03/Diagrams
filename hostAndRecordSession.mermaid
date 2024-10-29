@@ -28,9 +28,20 @@ sequenceDiagram
     deactivate Frontend
     deactivate Learner
 
-    Tutor->>System: endSession(sessionId)
+    alt Tutor ends session
+        Tutor->>Frontend: Click "End Session" 
+        activate Frontend
+        Frontend->>System: endSession(sessionId)
+        activate System
+        deactivate Frontend
+    else Session Automatically Ends
+        System ->> System: endSession(sessionId)
+    end
+    System-->>Frontend: Session Ended Successfully
+    activate Frontend
+    Frontend-->>Tutor: Session Ended
+    deactivate Frontend
     deactivate Tutor
-    activate System
     System->>System: stopRecording(sessionId)
     activate CloudStorage
     System-->>CloudStorage: Store recording in cloud
