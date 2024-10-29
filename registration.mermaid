@@ -1,18 +1,18 @@
 sequenceDiagram
     actor User
-    participant RegistrationPage
+    participant Frontend
     participant System
     participant EmailService
     participant GoogleAuthAPI
     participant Database
 
     activate User
-    User->>RegistrationPage: Choose Role
-    activate RegistrationPage
+    User->>Frontend: Choose Role
+    activate Frontend
     
     alt Standard Registration
-        User->>RegistrationPage: Fill in required fields
-        RegistrationPage->>System: register(registerRequest)
+        User->>Frontend: Fill in required fields
+        Frontend->>System: register(registerRequest)
         activate System
         System->>Database: checkEmailExists(email)
         activate Database
@@ -29,21 +29,21 @@ sequenceDiagram
             EmailService-->>User: Verification email delivered
             deactivate EmailService
             
-            System-->>RegistrationPage: Registration successful
-            RegistrationPage-->>User: Display success message
+            System-->>Frontend: Registration successful
+            Frontend-->>User: Display success message
         else Email already registered
-            System-->>RegistrationPage: Email already registered
+            System-->>Frontend: Email already registered
             deactivate System
-            RegistrationPage-->>User: Display error message
+            Frontend-->>User: Display error message
         end
     else Google Registration
-        User->>RegistrationPage: Click "Continue with Google"
-        RegistrationPage->>GoogleAuthAPI: requestGoogleAuthentication()
+        User->>Frontend: Click "Continue with Google"
+        Frontend->>GoogleAuthAPI: requestGoogleAuthentication()
         activate GoogleAuthAPI
-        GoogleAuthAPI-->>RegistrationPage: Google Token
+        GoogleAuthAPI-->>Frontend: Google Token
         deactivate GoogleAuthAPI
         
-        RegistrationPage->>System: registerWithGoogle(token)
+        Frontend->>System: registerWithGoogle(token)
         activate System
         System->>Database: checkGoogleUserExists(googleUserId)
         activate Database
@@ -55,14 +55,14 @@ sequenceDiagram
             activate Database
             deactivate Database
             
-            System-->>RegistrationPage: Registration successful
-            RegistrationPage-->>User: Display success message
+            System-->>Frontend: Registration successful
+            Frontend-->>User: Display success message
         else Google account already registered
-            System-->>RegistrationPage: Google account already registered
+            System-->>Frontend: Google account already registered
             deactivate System
-            RegistrationPage-->>User: Display error message
+            Frontend-->>User: Display error message
         end
     end
     
-    deactivate RegistrationPage
+    deactivate Frontend
     deactivate User
