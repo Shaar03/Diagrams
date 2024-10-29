@@ -3,36 +3,35 @@ sequenceDiagram
     actor Learner
     participant Frontend
     participant System
-    participant CloudStorage
+
+    activate System
+    System->>System: startSession(sessionId)
+    deactivate System
 
     Tutor->>Frontend: Click "Join" button
     activate Frontend
     activate Tutor
+    
+    Frontend->>System: joinSession(sessionId)
+    activate System
+    System-->>Frontend: Stream Url
     Learner->>Frontend: Click "Join" button
-    activate Learner
-    Frontend-->>Tutor: Display session URL
-    Frontend-->>Learner: Display session URL
-
-    Tutor->>System: joinSession(sessionId)
-    activate System
-    Learner->>System: joinSession(sessionId)
-    activate System
-    System->>System: startSession(sessionId)
+    Frontend->>System: joinSession(sessionId)
+    System-->>Frontend: Stream Url
+    System->>System: recordSession(sessionId)
     deactivate System
-    System-->>Frontend: Session started, recording ongoing
-    deactivate Frontend
-
+    activate Learner
     loop Session Ongoing
-        Tutor->>Learner: Interact during session
-        Learner->>Tutor: Interact during session
+        Tutor->>Frontend: Interact during session
+        Learner->>Frontend: Interact during session
     end
+    deactivate Frontend
     deactivate Learner
 
     Tutor->>System: endSession(sessionId)
     deactivate Tutor
     activate System
     System->>System: stopRecording(sessionId)
-    deactivate System
     activate CloudStorage
     System-->>CloudStorage: Store recording in cloud
     deactivate System
