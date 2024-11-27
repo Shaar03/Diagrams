@@ -35,7 +35,7 @@ sequenceDiagram
         System-->>Admin: Display session feedback
     end
 
-    Admin->>System: resolveSession(sessionId)
+    Admin->>System: resolveDispute(sessionId)
     alt Resolved in favor of Tutor
         System->>+Database: addPaymentToTutorWallet(tutorId, amount)
         Database-->>-System: paymentConfirmed()
