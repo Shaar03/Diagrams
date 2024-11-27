@@ -7,7 +7,7 @@ sequenceDiagram
     participant Database
     participant RecordingService
 
-    Learner->>Frontend: Click on "Report Session"
+    Learner->>Frontend: Provide Rating
     activate Learner
     activate Frontend
     Frontend->>System: rateTutor(sessionId)
@@ -35,7 +35,7 @@ sequenceDiagram
         System-->>Admin: Display session feedback
     end
 
-    Admin->>System: issueRefund(sessionId)
+    Admin->>System: resolveSession(sessionId)
     alt Resolved in favor of Tutor
         System->>+Database: addPaymentToTutorWallet(tutorId, amount)
         Database-->>-System: paymentConfirmed()
@@ -47,7 +47,7 @@ sequenceDiagram
         par
             Frontend-->>Learner: Display dispute result
             activate Tutor
-            Frontend->>Tutor: Payment added to your wallet
+            Frontend->>Tutor: Payment added to your wallet message
             deactivate Tutor
         end
         deactivate Frontend
@@ -60,7 +60,7 @@ sequenceDiagram
         activate Frontend
 
         par
-            Frontend-->>Learner: Display dispute result
+            Frontend-->>Learner: Refund Confirmation Message
             activate Tutor
             Frontend->>Tutor: Notify dispute outcome
             deactivate Tutor
